@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
 from .models import Trail
 
 # Create your views here.
 
 
-def trail_main_view(request, id):
+@login_required(login_url='/login/')
+def trail_main_view(request, id=1):
     #queryset = Trail.objects.all() # list of objects
     queryset = get_object_or_404(Trail, id=id)
     # current_user = request.user.username

@@ -18,6 +18,8 @@ from django.urls import path, include
 
 
 urlpatterns = [
+    path('', include("trail.urls")),
     path('admin/', admin.site.urls),
-    path('trail/', include("trail.urls")),
+    #path('trail/', include("trail.urls")),
+    path('', include("django.contrib.auth.urls")),
 ]

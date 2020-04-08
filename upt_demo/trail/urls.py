@@ -5,5 +5,6 @@ from . views import trail_main_view
 
 app_name = 'trail'
 urlpatterns = [
-    path('<int:id>/', trail_main_view, name='trail_main_view'),
+    #path('<int:id>/', trail_main_view, name='trail_main_view'),
+    path('', trail_main_view, name='trail_main_view'),
 ]
