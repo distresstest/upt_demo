@@ -7,7 +7,12 @@
         <h5>Greetings, {{ user }}</h5>
         <p>Welcome to {{ object.trail_name }}</p>
         <p>{{ object.trail_description  }}</p>
-        <button class="btn btn-outline-secondary btn-lg">Start Trail</button>   </h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Start Trail</button>
+        </form>
 </div>
 
 {% endblock %}
