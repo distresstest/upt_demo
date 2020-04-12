@@ -5,27 +5,25 @@ from django.contrib.auth.models import User
 class Item(models.Model):
     item_name = models.CharField(max_length=40, default="Item")
     item_description = models.TextField(max_length=200, default="This is an item")
-    # image = models.ImageField(upload_to='location_images', blank=True)
-
-
-# class Inventory(models.Model):
-#     inventory_item = models.ManyToManyField(Item, null=True, blank=True)
-#     inventory_date_added = models.DateTimeField(auto_now_add=True, null=True)
-
+    item_alt = models.CharField(max_length=40, default="This is an item")
+    item_image = models.ImageField(upload_to='location_images', blank=True)
 
 class Game(models.Model):
     game_name = models.CharField(max_length=120) # max_length = required
-    game_description = models.TextField(blank=True, null=True)
+    game_mission = models.TextField(blank=True, null=True)
     game_player = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     game_url = models.CharField(max_length=16)
     game_start = models.DateTimeField(auto_now_add=True)
     game_inventory = models.ManyToManyField(Item, blank=True)
+    game_total_items = models.IntegerField(default=0)
     #game_trail = models.ForeignKey(Trail, default="Trail X", on_delete=models.SET_DEFAULT)
+
 
 class Trail(models.Model):
     trail_name = models.CharField(max_length=120) # max_length = required
     trail_description = models.TextField(blank=True, null=True)
-    trail_url = models.URLField(max_length=16, default="This is a URL")
+    trail_mission = models.CharField(max_length=75, default="This is a mission")
+    trail_total_items = models.IntegerField(default=0) # CharField(max_length=75, default="This is a mission")
     # trail_image = models.ImageField(upload_to='location_images', blank=True)
 
 
@@ -33,10 +31,9 @@ class Location(models.Model):
     location_name = models.CharField(max_length=120) # max_length = required
     location_description = models.TextField(blank=True, null=True)
     #location_inventory = models.ForeignKey(Inventory, default=1, on_delete=models.SET_DEFAULT)
-    location_url = models.URLField(max_length=16, default="This is a URL")
-    #location_inventory = models.ManyToManyField(Item, null=True, blank=True)
-
-    # image = models.ImageField(upload_to='location_images', blank=True)
+    location_url = models.CharField(max_length=16, default="This is a URL")
+    location_inventory = models.ManyToManyField(Item, blank=True)
+    # location_image = models.ImageField(upload_to='location_images', blank=True)
 
 
 

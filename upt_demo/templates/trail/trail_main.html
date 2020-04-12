@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
+
+{% block title %}Urban Puzzle Trails{% endblock %}
+{% block heading %}Urban Puzzle Trails{% endblock %}
+
 {% block content %}
 
-<h1>Urban Puzzle Trails</h1>
-  <div class="description ">
+  <div class="description">
         <h5>Greetings, {{ user }}</h5>
         <p>Welcome to {{ object.trail_name }}</p>
         <p>{{ object.trail_description  }}</p>

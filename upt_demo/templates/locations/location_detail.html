@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Demo Puzzle Trail{% endblock %}
+{% block heading %}{{ location_data.location_name }}{% endblock %}
+
+{% block content %}
+
+<div>
+    <b>Description:</b><br>
+    {{ location_data.location_description }}
+    <hr>
+
+    <b>Items:</b><br>
+    <table style="width:30%">
+        <col width="80%">
+        <col width="20%">
+        {% if total_items > 0 %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% for instance in location_items %}
+                <tr>
+                    <td>{{ instance.item_name }}, {{ instance.item_description }}</td>
+                    <td>
+                        <button value="{{ instance.id }}" type="submit" class="btn btn-success" name="item"><img src="{{ instance.item_image.url }}" alt="{{ instance.item_alt }} " height=50></button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </form>
+        {% else %}
+            <tr>There are no items in this location</tr>
+        {% endif %}
+
+    </table>
+</div>
+
+{% endblock %}

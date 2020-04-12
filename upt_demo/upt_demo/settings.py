@@ -25,8 +25,8 @@ SECRET_KEY = '-gi(14atcwddvgqz%kzkjd!w50_itg0xvxeveoyhq8f#tr4ros'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ALLOWED_HOSTS = ['192.168.1.65']
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -126,7 +126,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upt_demo/media')
+
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 LOGIN_REDIRECT_URL = "/"
-LOGOU_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
