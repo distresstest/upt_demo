@@ -18,7 +18,7 @@
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            {% for instance in location_items %}
+            {% for instance in location_items_left %}
                 <tr>
                     <td>{{ instance.item_name }}, {{ instance.item_description }}</td>
                     <td>

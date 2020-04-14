@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Demo Puzzle Trail{% endblock %}
+{% block heading %}Demo Puzzle Trail{% endblock %}
+
+{% block content %}
+
+<div class="status">
+    <table style="width:50%">
+      <col width="30%">
+      <col width="70%">
+      <tr>
+          <td><b>Player Name:</b></td>
+        <td>{{ user }}</td>
+      </tr>
+      <tr>
+        <td><b>Mission:</b></td>
+        <td>{{ object.game_mission  }}</td>
+      </tr>
+      <tr>
+        <td><b>Status:</b></td>
+        <td>{{ object.game_status }}</td>
+      </tr>
+      <tr>
+      <tr>
+        <td><b>Progress:</b></td>
+        <td>{{ current_items }}/{{ object.game_total_items }} Found</td>
+      </tr>
+      <tr>
+        <td><b>Duration:</b></td>
+        <td>{{ duration }} </td>
+      </tr>
+    </table>
+    <hr>
+    <p>
+    <b>Items:</b><br>
+        {% if current_items > 0 %}
+            {% for instance in items %}
+                {{ instance.item_name }}, {{ instance.item_description }}<br>
+            {% endfor %}
+        {% else %}
+            You have no items.
+        {% endif %}
+    </p>
+
+    <hr>
+
+    {% if complete %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary" name="end_button" value="Finish"/>
+        </form>
+    {% else %}
+        <input type="submit" name="end_button" class="btn btn-primary" value="Finish" disabled/>
+    {% endif %}
+
+</div>
+
+{% endblock %}

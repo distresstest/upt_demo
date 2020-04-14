@@ -13,13 +13,22 @@
 
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
             <button type="submit" class="btn btn-success">Start Trail</button>
         </form>
 </div>
+<hr>
+<div>
+    <h5><b>Top Scores:</b></h5>
+    <table style="width:50%">
+      <col width="20%">
+      <col width="80%">
+        {% for game in top_scores %}
+            <tr>
+                <td>{{ game.game_player }}</td>
+                <td>{{ game.game_duration }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
 
 {% endblock %}
-
-
-
-

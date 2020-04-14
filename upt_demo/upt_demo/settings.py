@@ -25,8 +25,8 @@ SECRET_KEY = '-gi(14atcwddvgqz%kzkjd!w50_itg0xvxeveoyhq8f#tr4ros'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.65', 'localhost']
-#ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = ['192.168.1.65', 'localhost']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
 
     # My apps
     'trail',
-    #'game',
 ]
 
 MIDDLEWARE = [

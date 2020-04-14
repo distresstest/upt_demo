@@ -1,6 +1,7 @@
 # Other packages
 from secrets import token_urlsafe
-from datetime import datetime, timezone
+import datetime
+
 
 # django packages
 from django.shortcuts import render, get_object_or_404, redirect
@@ -10,35 +11,22 @@ from django.http import HttpResponseRedirect
 # My packages
 from .models import Trail, Game, Item, Location
 from .forms import TrailForm, LocationForm
+from .utility_functions import get_game_data, get_current_user, get_current_game_duration, format_duration, get_high_scores
 
-
-# utility functions
-def get_users_items(user):
-    pass
-
-def get_game_data(user):
-    # get game data
-    games_list = Game.objects.filter(game_player=user).order_by('-game_start')[:1]
-    print(games_list)
-    game_data = games_list[0]
-    print(game_data)
-    print('game_data.id = %s' % game_data.id)
-    print('game_data.game_player = %s' % game_data.game_player)
-    print('game_data.game_name = %s' % game_data.game_name)
-    print('game_data.game_mission = %s' % game_data.game_mission)
-    print('game_data.game_start = %s' % game_data.game_start)
-    print('game_data.game_inventory = %s' % game_data.game_inventory)
-    print('game_data.game_url = %s' % game_data.game_url)
-    print('game_data.game_total_items = %s' % game_data.game_total_items)
-
-    return games_list
 
 # Create your views here.
 @login_required(login_url='/login/')
 def trail_main_view(request, id=1):
-    # Get current user
-    current_user = request.user
-    print('Hello "%s"' % current_user)
+    """
+    Trail Main View shows the landing page for a specific trail.
+    It gathers trail data from database and monitors for a click on "Start Trail" button.
+    On click it creates a new game for the current user in the database and redirected to the "game" page
+
+    :param id: This is the "id" from the url  it equates to the id of the trail table (in models.py)
+    :param request: django request object
+    :return: django response (either redirect or rendered response)
+
+    """
 
     # get trail data
     trail_data = get_object_or_404(Trail, id=id)
@@ -58,35 +46,62 @@ def trail_main_view(request, id=1):
                                 game_player=request.user,
                                 game_url=my_url,
                                 game_total_items=trail_data.trail_total_items,
+                                game_trail=trail_data,
+                                game_progress=0,
+                                game_status='In Progress',
                                 )
 
             # Redirect to game.html
             return HttpResponseRedirect('/game/')
 
-    else:
-        form = TrailForm()  #initial={'post':"My data"})
+    # get top 5 scores
+    top_score_games = get_high_scores(5)
 
     # Add it all to context dictionary
     context = {
-        "form": form,
         "object": trail_data,
+        "top_scores": top_score_games,
         }
     return render(request, "trail/trail_main.html", context)
 
 
 @login_required(login_url='/login/')
 def game_main_view(request): #, id):
-    print("------------ game_main_view -----------------")
+    """
+    This view generates the latest game view for the current user.
+    It lists the current game stats, player's items and calculates game duration.
+    It also checks to see if the trail has been completed (i.e. expected number of items found) and
+    if so enables the "Finish" button.  If "Finish" button has been clicked then it returns a rendered request
+    of the game_finish.html
+
+    :param request: django request object
+    :return: django rendered response
+
+    """
+    # Work out which items the current player has got in their game
+    current_user = get_current_user(request)
+    games_list = get_game_data(current_user)
+    game_data = games_list[0]
 
     # Check if it is a POST from finish button click
     if request.method == 'POST':
         if request.POST.getlist('end_button')[0] == 'Finish':
-            return render(request, "game/game_finish.html", {})
 
-    # Work out which items the current player has got in their game
-    current_user = request.user
-    games_list = get_game_data(current_user)
-    game_data = games_list[0]
+            # Work out duration
+            game_duration = get_current_game_duration(game_data.game_start)
+            game_data.game_status = 'Completed'
+            game_data.game_duration = game_duration
+            game_data.save()
+
+            # Get a pretty string format for duration
+            game_duration_str = format_duration(game_duration)
+
+            context = {
+                "game_duration": game_duration_str,
+            }
+            return render(request, "game/game_finish.html", context)
+
+    # Work out items
     items = Item.objects.distinct().filter(game__in=games_list)
     print("You have the following items...")
     for item in items:
@@ -100,23 +115,37 @@ def game_main_view(request): #, id):
         trail_completed = False
 
     # Update the current duration
-    now = datetime.now(timezone.utc)
-    game_duration = now - game_data.game_start
+    game_duration = get_current_game_duration(game_data.game_start)
+
+    # Get a pretty string format for duration
+    game_duration_str = format_duration(game_duration)
 
     # Add it all to context dictionary
     context = {
         "items": items,
         "current_items": current_items,
         "object": game_data,
-        "duration": game_duration,
+        "duration": game_duration_str,
         "complete": trail_completed,
         }
 
     return render(request, "game/game_main.html", context)
 
+
 @login_required(login_url='/login/')
 def location_detail_view(request, id):
-    print("------------ location_detail_view -----------------")
+    """
+    This view generates a location view based on the "id" .
+    It gets the location data for the given "id" from the location table in the database.
+    It checks to see if request is a post and if so works out which item was associated with the click.  It then adds
+    the new item to the players inventory (in Game table).  If an item has been collected then it will redirect
+    to "/game/".  Else it will render the location
+
+    :param request: django request object
+    :param id: location id from the url
+    :return: django rendered response or redirect
+
+    """
 
     # Get the location data
     location_data = get_object_or_404(Location, id=id)
@@ -165,9 +194,9 @@ def location_detail_view(request, id):
     return render(request, "locations/location_detail.html", context)
 
 
-@login_required(login_url='/login/')
-def game_finish_view(request):
-    print("------------ game_finish_view -----------------")
-
-    return render(request, "game/game_finish.html", {})
+# @login_required(login_url='/login/')
+# def game_finish_view(request):
+#     print("------------ game_finish_view -----------------")
+#
+#     #return render(request, "game/game_finish.html", {})
 
