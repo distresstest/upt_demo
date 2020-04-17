@@ -83,7 +83,7 @@ def game_main_view(request): #, id):
     games_list = get_game_data(current_user)
     game_data = games_list[0]
 
-    # Check if it is a POST from finish button click
+    # Check if it is a POST from finish (i.e. a button click button click
     if request.method == 'POST':
         if request.POST.getlist('end_button')[0] == 'Finish':
 
@@ -150,9 +150,11 @@ def location_detail_view(request, id):
     # Get the location data
     location_data = get_object_or_404(Location, id=id)
 
-    # Check if it is a POST
+    # Check if it is a POST  (This implies an action has been performed
     if request.method == 'POST':
-        # Work out which item has been taken
+        # Work out which action has been performed
+
+
         item_index = request.POST.getlist('item')[0]
         item = Item.objects.filter(id=item_index)
         print('You have picked up a %s' % item[0].item_name)
