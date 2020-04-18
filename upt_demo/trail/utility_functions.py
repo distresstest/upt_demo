@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 import re
 
-from .models import Game, Events, Location, Context
+from .models import Game, Event, Location, Context
 
 def get_game_data(user):
     """
@@ -109,7 +109,7 @@ def get_game_events(game_id):
     event_list = []
     # get events in game
     games_list = Game.objects.filter(id=game_id)
-    events = Events.objects.distinct().filter(game__in=games_list)
+    events = Event.objects.distinct().filter(game__in=games_list)
 
     #print("The following events are in game_events...")
     for event in events:
@@ -128,7 +128,7 @@ def add_events_to_game(game_id, event_ids):
 
     """
     for event_id in event_ids:
-        current_event = Events(id=event_id)
+        current_event = Event(id=event_id)
         current_game = Game(id=game_id)
         current_game.game_event_list.add(current_event)
 
@@ -163,9 +163,9 @@ def get_current_context(game_id, location_id):
     current_context_number = 0
     for context in context_list:
         context_enable_events_list = []
-        context_enable_eventss = (context.context_enable_events.all())
-        if context_enable_eventss:
-            for context_enable_events in context_enable_eventss:
+        context_enable_events = (context.context_enable_events.all())
+        if context_enable_events:
+            for context_enable_events in context_enable_events:
                 context_enable_events_list.append(context_enable_events.event_name)
         else:
             print('This context requires no enable events')

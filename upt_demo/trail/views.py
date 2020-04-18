@@ -16,7 +16,7 @@ from .utility_functions import get_game_data, get_current_user, get_current_game
 
 # Create your views here.
 @login_required(login_url='/login/')
-def trail_main_view(request, id=1):
+def trail_main_view(request, id=id):
     """
     Trail Main View shows the landing page for a specific trail.
     It gathers trail data from database and monitors for a click on "Start Trail" button.

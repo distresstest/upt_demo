@@ -1,7 +1,7 @@
 import unittest
 from django.test import TestCase
 from .utility_functions import add_events_to_game, get_game_events, get_current_context, get_actions_for_context
-from .models import Events, Game, Location, Context, Action
+from .models import Event, Game, Location, Context, Action
 
 
 class MyUtilityTestCases(TestCase):
@@ -16,15 +16,15 @@ class MyUtilityTestCases(TestCase):
         print('> Created a location, %s' % location.location_name)
 
         # Create a few events
-        Events.objects.create(event_name="EVENT1")  # ----------------------------------------- 1
-        Events.objects.create(event_name="EVENT2")  # ----------------------------------------- 2
-        Events.objects.create(event_name="EVENT3")  # ----------------------------------------- 3
-        action1_event = Events.objects.create(event_name="DONE_ACTION1")  # ------------------- 4
-        action2_event = Events.objects.create(event_name="DONE_ACTION2")  # ------------------- 5
-        action3_event = Events.objects.create(event_name="DONE_ACTION3")  # ------------------- 6
-        context_1_enable = Events.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_1")  # --- 7
-        context_2a_enable = Events.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_2A")  # - 8
-        context_2b_enable = Events.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_2B")  # - 9
+        Event.objects.create(event_name="EVENT1")  # ----------------------------------------- 1
+        Event.objects.create(event_name="EVENT2")  # ----------------------------------------- 2
+        Event.objects.create(event_name="EVENT3")  # ----------------------------------------- 3
+        action1_event = Event.objects.create(event_name="DONE_ACTION1")  # ------------------- 4
+        action2_event = Event.objects.create(event_name="DONE_ACTION2")  # ------------------- 5
+        action3_event = Event.objects.create(event_name="DONE_ACTION3")  # ------------------- 6
+        context_1_enable = Event.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_1")  # --- 7
+        context_2a_enable = Event.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_2A")  # - 8
+        context_2b_enable = Event.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_2B")  # - 9
 
         # Create a few actions
         # a1c1 = Action.objects.create(action_name="CONTEXT1_ACTION1")
@@ -73,7 +73,7 @@ class MyUtilityTestCases(TestCase):
         add_events_to_game(game_id,event_list)
         # get events in game
         games_list = Game.objects.filter(id=game_id)
-        events = Events.objects.distinct().filter(game__in=games_list)
+        events = Event.objects.distinct().filter(game__in=games_list)
 
         for event in events:
             my_event_list.append(event.event_name)
