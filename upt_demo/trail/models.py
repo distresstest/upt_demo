@@ -38,6 +38,7 @@ class Game(models.Model):
 
 class Action(models.Model):
     action_name = models.CharField(default='NO_ACTION', max_length=30)
+    action_event = models.ForeignKey(Events, null=True, on_delete=models.SET_NULL)
 
 
 class Location(models.Model):
@@ -46,6 +47,7 @@ class Location(models.Model):
     #location_inventory = models.ForeignKey(Inventory, default=1, on_delete=models.SET_DEFAULT)
     location_url = models.CharField(max_length=16, default="This is a URL")
     location_inventory = models.ManyToManyField(Item, blank=True)
+    location_visit_event = models.ForeignKey(Events, null=True, on_delete=models.SET_NULL)
     #location_context = models.ManyToManyField(Context, blank=True)
     # location_image = models.ImageField(upload_to='location_images', blank=True)
 
@@ -54,4 +56,4 @@ class Context(models.Model):
     context_text = models.TextField(blank=True, null=True)
     context_action = models.ManyToManyField(Action, blank=True)
     context_location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
-    context_enable = models.ManyToManyField(Events, blank=True)
+    context_enable_events = models.ManyToManyField(Events, blank=True)

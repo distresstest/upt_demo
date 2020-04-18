@@ -162,33 +162,38 @@ def get_current_context(game_id, location_id):
     # Loop through contexts and find the a match based on game events
     current_context_number = 0
     for context in context_list:
-        context_enable_list = []
-        context_enables = (context.context_enable.all())
-        if context_enables:
-            for context_enable in context_enables:
-                context_enable_list.append(context_enable.event_name)
+        context_enable_events_list = []
+        context_enable_eventss = (context.context_enable_events.all())
+        if context_enable_eventss:
+            for context_enable_events in context_enable_eventss:
+                context_enable_events_list.append(context_enable_events.event_name)
         else:
             print('This context requires no enable events')
 
-        print('context_enable_list = %s' % context_enable_list)
+        print('context_enable_events_list = %s' % context_enable_events_list)
 
         # Check if context enable events are in game events
-        if set(context_enable_list).issubset(current_game_events):
+        if set(context_enable_events_list).issubset(current_game_events):
             current_context_number = context.context_index
 
     return current_context_number
 
 
-def get_actions_for_context(context_index, location_id):
+def get_actions_for_context(context_index, location_id, game_id):
     """
     Return actions for the given context_id
 
     :param context_id: integer, id of game record
     :param location_id: integer, id of location record
+    :param return_type : Either "all" or "valid"
     :return context_actions: integer,  list of enabled actions id for the context of a location
 
     """
 
+    # Get game data
+    # Get events in game
+    current_game_events = get_game_events(game_id)
+    print("Events in current game are... %s" % current_game_events)
 
     # Get location data
     location_list = Location.objects.filter(id=location_id)
@@ -198,4 +203,16 @@ def get_actions_for_context(context_index, location_id):
     # Get contexts for current location
     context_list = Context.objects.filter(context_index=context_index, context_location=current_location)
     print('context_list = %s' % context_list)
-    return context_list
+    for context in context_list:
+        context_action_list = []
+        context_actions = (context.context_action.all())
+        if context_actions:
+            for context_action in context_actions:
+                print('context_action.action_name = %s' % context_action.action_name)
+                print('context_action.action_event.event_name = %s' % context_action.action_event.event_name)
+                if context_action.action_event.event_name not in current_game_events:
+                    context_action_list.append(context_action.action_name)
+                else:
+                    print("Not appending!!!")
+
+    return context_action_list
