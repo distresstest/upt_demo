@@ -127,9 +127,10 @@ def add_events_to_game(game_id, event_ids):
     :param event_ids: list, of event ids to be added
 
     """
+    current_game = Game(id=game_id)
     for event_id in event_ids:
         current_event = Event(id=event_id)
-        current_game = Game(id=game_id)
+        print("current_event = %s" % current_event)
         current_game.game_event_list.add(current_event)
 
 
@@ -211,8 +212,8 @@ def get_actions_for_context(context_index, location_id, game_id):
                 print('context_action.action_name = %s' % context_action.action_name)
                 print('context_action.action_event.event_name = %s' % context_action.action_event.event_name)
                 if context_action.action_event.event_name not in current_game_events:
-                    context_action_list.append(context_action.action_name)
+                    context_action_list.append(context_action)
                 else:
                     print("Not appending!!!")
-
+    print(context_action_list)
     return context_action_list

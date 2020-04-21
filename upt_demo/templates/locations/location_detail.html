@@ -7,7 +7,43 @@
 
 <div>
     <b>Description:</b><br>
-    {{ location_data.location_description }}
+    {{ location_data.location_description }}</br>
+    {{ current_game_events }}
+    <hr>
+    <div>
+        <b>Context:</b><br>
+        {% for section in context_text %}
+            <p>{{ section }}</p>
+        {% endfor %}
+    </div>
+    <hr>
+    <div>
+        <b>Actions:</b><br>
+        <table style="width:30%">
+        <col width="80%">
+        <col width="20%">
+        {{ current_context_actions }}<br>
+        {% if current_context_actions %}
+        <form method="post">
+            {% csrf_token %}
+            {% for action in current_context_actions %}
+                <tr>
+                    <td>{{ action.action_event }}</td>
+                    <td>
+                        <button value="{{ action.id }}" type="submit" class="btn btn-success" name="action">Go</button>
+                        <! button value="{{ action }}" type="submit" class="btn btn-success" name="item"><! /button>
+
+                    </td>
+                </tr>
+            {% endfor %}
+        </form>
+        {% else %}
+            <tr>There is nothing you can do.</tr>
+        {% endif %}
+    </table>
+
+
+    </div>
     <hr>
 
     <b>Items:</b><br>

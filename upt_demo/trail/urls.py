@@ -8,5 +8,5 @@ urlpatterns = [
     #path('', trail_main_view, name='trail_main_view'),
     path('game/', game_main_view, name='game_main_view'),
     #path('game/finish', game_finish_view, name='game_main_view'),
-    path('location/<int:id>/', location_detail_view, name='location_detail_view'),
+    path('location/<int:location_id>/', location_detail_view, name='location_detail_view'),
 ]

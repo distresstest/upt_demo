@@ -9,9 +9,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 
 # My packages
-from .models import Trail, Game, Item, Location
+from .models import Trail, Game, Item, Location, Context, Action
 from .forms import TrailForm, LocationForm
-from .utility_functions import get_game_data, get_current_user, get_current_game_duration, format_duration, get_high_scores
+from .utility_functions import get_game_data, get_current_user, get_current_game_duration, format_duration, \
+    get_high_scores, get_game_events, get_actions_for_context, get_current_context, add_events_to_game
+
 
 
 # Create your views here.
@@ -133,7 +135,7 @@ def game_main_view(request): #, id):
 
 
 @login_required(login_url='/login/')
-def location_detail_view(request, id):
+def location_detail_view(request, location_id):
     """
     This view generates a location view based on the "id" .
     It gets the location data for the given "id" from the location table in the database.
@@ -148,27 +150,48 @@ def location_detail_view(request, id):
     """
 
     # Get the location data
-    location_data = get_object_or_404(Location, id=id)
+    location_data = get_object_or_404(Location, id=location_id)
 
-    # Check if it is a POST  (This implies an action has been performed
+    # Get the game data
+    game_list = get_game_data(request.user)
+    game_id = game_list[0].id
+    game_events = get_game_events(game_id)
+
+    # Get the context data
+    context_index = get_current_context(game_id, location_id)
+    #context_index = 2
+    location_context_so_far = Context.objects.filter(context_location=location_id, context_index__lte=context_index)
+    context_text = list(location_context_so_far.values_list('context_text', flat=True))
+    context_text_section = '\n'.join(context_text)
+    context_actions = get_actions_for_context(context_index, location_id, game_id)
+
+    # Add location_event to game_events (if not already present)
+    event = location_data.location_visit_event
+    # print('location_visit_event = %s' % event.id)
+    add_events_to_game(game_id, [event.id])
+
+    # Check if it is a POST  (This implies an action has been performed)
     if request.method == 'POST':
         # Work out which action has been performed
+        print("HELLO I FOUND POST!")
 
-
-        item_index = request.POST.getlist('item')[0]
-        item = Item.objects.filter(id=item_index)
-        print('You have picked up a %s' % item[0].item_name)
+        action_index = request.POST.getlist('action')[0]
+        action = Action.objects.filter(id=action_index)
+        print('*** You have %s ***' % action[0].action_name)
+        print('*** action_index = %s ***' % action_index)
+        add_events_to_game(game_id, [action[0].action_event.id])
 
         #  Add it to game inventory
-        current_item = Item(id=item_index)
-        games_list = get_game_data(request.user)
-        current_game = Game(id=games_list[0].id)
-        current_game.game_inventory.add(current_item)
+        # current_item = Item(id=item_index)
+        # games_list = get_game_data(request.user)
+        # current_game = Game(id=games_list[0].id)
+        # current_game.game_inventory.add(current_item)
 
         # redirect to game_main_view
-        return HttpResponseRedirect('/game/')
+        # return HttpResponseRedirect('/game/')
+        return HttpResponseRedirect(request.path_info)
 
-    location_list = Location.objects.filter(id=id)
+    location_list = Location.objects.filter(id=location_id)
     location_items = Item.objects.distinct().filter(location__in=location_list)
     print("The location has the following items...")
     for item in location_items:
@@ -186,14 +209,19 @@ def location_detail_view(request, id):
 
     total_items = len(location_items_left)
 
-    # Add it all to the context
-    context = {
+    # Add it all to the page_data
+    page_data = {
         "location_data": location_data,
         "location_items_left": location_items_left,
         "total_items": total_items,
+        "current_game_events": game_events,
+        "current_context_index": context_index,
+        "context_text": context_text,
+        "current_context_actions": context_actions,
+
     }
 
-    return render(request, "locations/location_detail.html", context)
+    return render(request, "locations/location_detail.html", page_data)
 
 
 # @login_required(login_url='/login/')
