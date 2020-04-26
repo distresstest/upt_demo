@@ -22,12 +22,15 @@ class Item(models.Model):
     def __str__(self):
         return self.item_name
 
+
 class Event(models.Model):
     event_name = models.CharField(max_length=50)
+    #event_description = models.TextField(max_length=100, default="This is an event")
     event_trail = models.ForeignKey(Trail, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.event_name
+
 
 class Game(models.Model):
     game_name = models.CharField(max_length=120)
@@ -58,7 +61,6 @@ class Action(models.Model):
 class Location(models.Model):
     location_name = models.CharField(max_length=120) # max_length = required
     location_description = models.TextField(blank=True, null=True)
-    #location_inventory = models.ForeignKey(Inventory, default=1, on_delete=models.SET_DEFAULT)
     location_url = models.CharField(max_length=16, default="This is a URL")
     location_inventory = models.ManyToManyField(Item, blank=True)
     location_visit_event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL)

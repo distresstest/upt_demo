@@ -4,6 +4,7 @@ from .utility_functions import add_events_to_game, get_game_events, get_current_
 from .models import Event, Game, Location, Context, Action
 
 
+
 class MyUtilityTestCases(TestCase):
     def setUp(self):
         print("============================================")
@@ -27,15 +28,9 @@ class MyUtilityTestCases(TestCase):
         context_2b_enable = Event.objects.create(event_name="EVENT_TO_ENABLE_CONTEXT_2B")  # - 9
 
         # Create a few actions
-        # a1c1 = Action.objects.create(action_name="CONTEXT1_ACTION1")
-        # a2c1 = Action.objects.create(action_name="CONTEXT1_ACTION2")
-        # a1c2 = Action.objects.create(action_name="CONTEXT2_ACTION1")
-        # a2c2 = Action.objects.create(action_name="CONTEXT2_ACTION2")
-        # a3c2 = Action.objects.create(action_name="CONTEXT2_ACTION3")
         context1_action1 = Action.objects.create(action_name="ACTION1", action_event=action1_event)
         context1_action2 = Action.objects.create(action_name="ACTION2", action_event=action2_event)
         context2_action1 = Action.objects.create(action_name="ACTION3", action_event=action3_event)
-
 
         # Create a few contexts for the location created above
         c0 = Context.objects.create(context_index=0, context_text="This is context 0...", context_location=location)
@@ -142,7 +137,7 @@ class MyUtilityTestCases(TestCase):
 
         actions = get_actions_for_context(context_index, location_id, game_id)
 
-        self.assertEqual(actions, ['ACTION1', 'ACTION2'])
+        self.assertQuerysetEqual(actions, ["<Action: ACTION1>", "<Action: ACTION2>"])
 
     def test_get_actions_for_context_for_context_2(self):
         """Check that get_actions_for_context returned a list of the correct actions"""
@@ -152,12 +147,13 @@ class MyUtilityTestCases(TestCase):
 
         actions = get_actions_for_context(context_index, location_id, game_id)
 
-        self.assertEqual(actions, ['ACTION3'])
+        self.assertQuerysetEqual(actions, ["<Action: ACTION3>"])
 
     def test_get_actions_returns_no_actions_if_already_done(self):
         """Check that get_actions_for_context returns empty list if actions already done"""
         context_index = 1
-        location_id = 1
+        location_id\
+            = 1
         game_id = 1
         add_events_to_game(game_id, [4, 5])
         actions = get_actions_for_context(context_index, location_id, game_id)
@@ -165,8 +161,8 @@ class MyUtilityTestCases(TestCase):
 
         self.assertEqual(actions, [])
 
-    def test_get_actions_returns_correrct_actions_if_action1_already_done(self):
-        """Check that get_actions_for_context returns empty list if actiona already done"""
+    def test_get_actions_returns_correct_actions_if_action1_already_done(self):
+        """Check that get_actions_for_context returns empty list if actions already done"""
         context_index = 1
         location_id = 1
         game_id = 1
@@ -174,10 +170,10 @@ class MyUtilityTestCases(TestCase):
         actions = get_actions_for_context(context_index, location_id, game_id)
         print('Actions returned = %s' % actions)
 
-        self.assertEqual(actions, ['ACTION2'])
+        self.assertQuerysetEqual(actions, ["<Action: ACTION2>"])
 
-    def test_get_actions_returns_correrct_actions_if_action2_already_done(self):
-        """Check that get_actions_for_context returns empty list if actiona already done"""
+    def test_get_actions_returns_correct_actions_if_action2_already_done(self):
+        """Check that get_actions_for_context returns empty list if actions already done"""
         context_index = 1
         location_id = 1
         game_id = 1
@@ -185,7 +181,7 @@ class MyUtilityTestCases(TestCase):
         actions = get_actions_for_context(context_index, location_id, game_id)
         print('Actions returned = %s' % actions)
 
-        self.assertEqual(actions, ['ACTION1'])
+        self.assertQuerysetEqual(actions, ["<Action: ACTION1>"])
 
 
 if __name__ == '__main__':

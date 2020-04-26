@@ -7,12 +7,17 @@ import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.contrib import messages
+from django.contrib.messages import get_messages
+
 
 # My packages
 from .models import Trail, Game, Item, Location, Context, Action
 from .forms import TrailForm, LocationForm
 from .utility_functions import get_game_data, get_current_user, get_current_game_duration, format_duration, \
     get_high_scores, get_game_events, get_actions_for_context, get_current_context, add_events_to_game
+from .action_manager import ActionManager
+from .context_manager import ContextManager
 
 
 
@@ -157,29 +162,32 @@ def location_detail_view(request, location_id):
     game_id = game_list[0].id
     game_events = get_game_events(game_id)
 
-    # Get the context data
-    context_index = get_current_context(game_id, location_id)
-    #context_index = 2
-    location_context_so_far = Context.objects.filter(context_location=location_id, context_index__lte=context_index)
-    context_text = list(location_context_so_far.values_list('context_text', flat=True))
-    context_text_section = '\n'.join(context_text)
-    context_actions = get_actions_for_context(context_index, location_id, game_id)
+    am = ActionManager(game_id)
+    cm = ContextManager(game_id, location_id)
 
     # Add location_event to game_events (if not already present)
     event = location_data.location_visit_event
-    # print('location_visit_event = %s' % event.id)
+    print('VIEW: location_visit_event = %s' % event.id)
     add_events_to_game(game_id, [event.id])
+
+
 
     # Check if it is a POST  (This implies an action has been performed)
     if request.method == 'POST':
         # Work out which action has been performed
         print("HELLO I FOUND POST!")
+        # messages.success(request, 'Form submission successful')
+        # storage = get_messages(request)
+        # for message in storage:
+        #     print(message)
+        # messages.add_message(request, messages.INFO, 'Hello world.')
+        action_str = request.POST.getlist('action')[0]
+        print("VIEW: action posted = %s" % action_str)
+        action_dict = eval(action_str)
+        am.take_item(action_dict['item_id'])
+        my_message = 'You ' + action_dict['action_type'] + ' the ' + action_dict['item_name']
+        messages.success(request, my_message)
 
-        action_index = request.POST.getlist('action')[0]
-        action = Action.objects.filter(id=action_index)
-        print('*** You have %s ***' % action[0].action_name)
-        print('*** action_index = %s ***' % action_index)
-        add_events_to_game(game_id, [action[0].action_event.id])
 
         #  Add it to game inventory
         # current_item = Item(id=item_index)
@@ -191,34 +199,32 @@ def location_detail_view(request, location_id):
         # return HttpResponseRedirect('/game/')
         return HttpResponseRedirect(request.path_info)
 
-    location_list = Location.objects.filter(id=location_id)
-    location_items = Item.objects.distinct().filter(location__in=location_list)
-    print("The location has the following items...")
+    # Get current context
+    current_context = cm.get_current_context()
+    print('VIEW: Current context = %s' % current_context)
+
+    # Work out story so far
+    story_so_far = cm.concatenate_context(current_context.context_index)
+    print('VIEW: The story so far...')
+    print(story_so_far)
+
+    # Get current items at current location
+    location_items = cm.get_current_items()
+    print("VIEW: The location has the following items...")
     for item in location_items:
-        print('> %s : "%s", "%s" (%s)' % (item.item_name, item.item_description, item.item_alt, item.item_image))
+        print('VIEW: >> %s : "%s", "%s" (%s)' % (item.item_name, item.item_description, item.item_alt, item.item_image))
 
-    # get current game_inventory
-    games_list = get_game_data(request.user)
-    current_game = Game(id=games_list[0].id)
-    game_items = Item.objects.distinct().filter(game__in=games_list)
-    print("You have the following items...")
-    for item in game_items:
-        print("> %s : %s" % (item.item_name, item.item_description))
-
-    location_items_left = location_items.difference(game_items)
-
-    total_items = len(location_items_left)
+    # Get the current actions
+    current_actions = am.work_out_current_actions(location_items)
+    print("VIEW: The current actions are... %s" % current_actions)
 
     # Add it all to the page_data
     page_data = {
+        "current_location_items": location_items,
         "location_data": location_data,
-        "location_items_left": location_items_left,
-        "total_items": total_items,
-        "current_game_events": game_events,
-        "current_context_index": context_index,
-        "context_text": context_text,
-        "current_context_actions": context_actions,
-
+        "story_so_far": story_so_far,
+        "total_items": 2,
+        "current_actions": current_actions,
     }
 
     return render(request, "locations/location_detail.html", page_data)

@@ -127,9 +127,9 @@ def add_events_to_game(game_id, event_ids):
     :param event_ids: list, of event ids to be added
 
     """
-    current_game = Game(id=game_id)
+    current_game = Game.objects.get(pk=game_id)
     for event_id in event_ids:
-        current_event = Event(id=event_id)
+        current_event = Event.objects.get(id=event_id)
         print("current_event = %s" % current_event)
         current_game.game_event_list.add(current_event)
 
@@ -187,7 +187,7 @@ def get_actions_for_context(context_index, location_id, game_id):
     :param context_id: integer, id of game record
     :param location_id: integer, id of location record
     :param return_type : Either "all" or "valid"
-    :return context_actions: integer,  list of enabled actions id for the context of a location
+    :return context_actions: action record,  list of enable actions for the context of a location
 
     """
 
