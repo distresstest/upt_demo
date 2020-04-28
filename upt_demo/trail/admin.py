@@ -21,7 +21,7 @@ class GameAdmin(admin.ModelAdmin):
 
 
 class ActionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'action_name', 'action_event')
+    list_display = ('id', 'action_name', 'action_event', 'action_verb', 'action_item')
 
 
 class ContextAdmin(admin.ModelAdmin):

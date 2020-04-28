@@ -5,8 +5,6 @@
 
 {% block content %}
 
-{% load custom_tags %}
-
 <div>
     <b>Description:</b><br>
     {{ location_data.location_description }}</br>
@@ -51,9 +49,9 @@
             {% csrf_token %}
             {% for action in current_actions %}
                 <tr>
-                    <td>{{ action|get_dict_item:"action" }}</td>
+                    <td>{{ action.action_name}}</td>
                     <td>
-                        <button value="{{ action }}" type="submit" class="btn btn-success" name="action">GO</button>
+                        <button value="{{ action.id }}" type="submit" class="btn btn-success" name="action">GO</button>
                         <! button value="{{ action }}" type="submit" class="btn btn-success" name="item"><! /button>
 
                     </td>
@@ -70,13 +68,5 @@
     <hr>
 
 </div>
-
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-    {% endfor %}
-</ul>
-{% endif %}
 
 {% endblock %}

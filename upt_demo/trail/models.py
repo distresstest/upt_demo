@@ -51,8 +51,11 @@ class Game(models.Model):
 
 
 class Action(models.Model):
+    ACTION_VERBS = [('TAKE', 'Take Item'), ('USE', 'Use Item')]
     action_name = models.CharField(default='NO_ACTION', max_length=30)
     action_event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL)
+    action_verb = models.CharField(max_length=10, choices=ACTION_VERBS, default='1')
+    action_item  = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.action_name

@@ -181,12 +181,16 @@ def location_detail_view(request, location_id):
         # for message in storage:
         #     print(message)
         # messages.add_message(request, messages.INFO, 'Hello world.')
-        action_str = request.POST.getlist('action')[0]
-        print("VIEW: action posted = %s" % action_str)
-        action_dict = eval(action_str)
-        am.take_item(action_dict['item_id'])
-        my_message = 'You ' + action_dict['action_type'] + ' the ' + action_dict['item_name']
-        messages.success(request, my_message)
+        current_action_id = request.POST.getlist('action')[0]
+        print(type(current_action_id))
+        print("VIEW: action posted = %s" % current_action_id)
+        my_action = Action.objects.get(pk=current_action_id)
+        print(my_action.action_item)
+        # action_dict = eval(action_str)
+        #am.take_item(current_action.id)
+        am.perform_action(my_action)
+        # my_message = 'You ' + action_dict['action_type'] + ' the ' + action_dict['item_name']
+        # messages.success(request, my_message)
 
 
         #  Add it to game inventory
@@ -215,7 +219,7 @@ def location_detail_view(request, location_id):
         print('VIEW: >> %s : "%s", "%s" (%s)' % (item.item_name, item.item_description, item.item_alt, item.item_image))
 
     # Get the current actions
-    current_actions = am.work_out_current_actions(location_items)
+    current_actions = am.work_out_current_actions(current_context)
     print("VIEW: The current actions are... %s" % current_actions)
 
     # Add it all to the page_data
