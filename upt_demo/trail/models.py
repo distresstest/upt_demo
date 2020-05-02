@@ -8,6 +8,7 @@ class Trail(models.Model):
     trail_mission = models.CharField(max_length=75, default="This is a mission")
     trail_total_items = models.IntegerField(default=0) # CharField(max_length=75, default="This is a mission")
     # trail_image = models.ImageField(upload_to='location_images', blank=True)
+    trail_start_location = models.CharField(max_length=120, blank=True)
 
     def __str__(self):
         return self.trail_name
@@ -25,11 +26,12 @@ class Item(models.Model):
 
 class Event(models.Model):
     event_name = models.CharField(max_length=50)
-    #event_description = models.TextField(max_length=100, default="This is an event")
     event_trail = models.ForeignKey(Trail, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.event_name
+
+
 
 
 class Game(models.Model):
@@ -45,6 +47,7 @@ class Game(models.Model):
     game_progress = models.IntegerField(default=0)
     game_status = models.CharField(default='Not Started', max_length=20)
     game_event_list = models.ManyToManyField(Event, blank=True)
+    # game_actions = models.ManyToManyField(Action, blank=True)
 
     def __str__(self):
         return self.game_name
@@ -67,8 +70,7 @@ class Location(models.Model):
     location_url = models.CharField(max_length=16, default="This is a URL")
     location_inventory = models.ManyToManyField(Item, blank=True)
     location_visit_event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL)
-    #location_context = models.ManyToManyField(Context, blank=True)
-    # location_image = models.ImageField(upload_to='location_images', blank=True)
+    location_image = models.ImageField(upload_to='location_images', blank=True)
 
     def __str__(self):
         return self.location_name

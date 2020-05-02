@@ -36,7 +36,7 @@ def get_high_scores(number):
     :return: queryset containing top n games
 
     """
-    games_list = Game.objects.order_by('game_duration')[:number]
+    games_list = Game.objects.exclude(game_duration__isnull=True).order_by('game_duration')[:number]
     print(games_list)
     game_data = games_list[0]
     print(game_data)

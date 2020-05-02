@@ -119,12 +119,19 @@ class ContextManager(object):
         :return: story_so_far: str
         """
 
-        location_context_so_far = Context.objects.filter(context_location=self.location_id, context_index__lte=context_index)
-        context_text = list(location_context_so_far.values_list('context_text', flat=True))
-        context_text_section = '\n'.join(context_text)
+        if context_index == 99:
+            # Final context
+            location_final_context = Context.objects.filter(context_location=self.location_id, context_index=context_index)
+            context_text_list = list(location_final_context.values_list('context_text', flat=True))
 
-        return context_text_section
+        else:
+            location_context_so_far = Context.objects.filter(context_location=self.location_id, context_index__lte=context_index)
+            context_text_list = list(location_context_so_far.values_list('context_text', flat=True))
+            context_text_section = '\n'.join(context_text_list)
 
+
+        #return context_text_section
+        return context_text_list
 
 if __name__ == '__main__':
     pass

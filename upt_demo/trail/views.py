@@ -2,14 +2,12 @@
 from secrets import token_urlsafe
 import datetime
 
-
 # django packages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.messages import get_messages
-
 
 # My packages
 from .models import Trail, Game, Item, Location, Context, Action
@@ -18,7 +16,6 @@ from .utility_functions import get_game_data, get_current_user, get_current_game
     get_high_scores, get_game_events, get_actions_for_context, get_current_context, add_events_to_game
 from .action_manager import ActionManager
 from .context_manager import ContextManager
-
 
 
 # Create your views here.
@@ -59,7 +56,7 @@ def trail_main_view(request, id=id):
                                 )
 
             # Redirect to game.html
-            return HttpResponseRedirect('/game/')
+            return HttpResponseRedirect(trail_data.trail_start_location)
 
     # get top 5 scores
     top_score_games = get_high_scores(5)
@@ -114,6 +111,16 @@ def game_main_view(request): #, id):
     for item in items:
         print("> %s : %s" % (item.item_name, item.item_description))
 
+    # Update progress
+    events = game_data.game_event_list.all()
+    print(len(events))
+    p = len(events) / game_data.game_total_items
+    p1 = p * 100
+    progress = round(p1, 0)
+    print("Progress = %s" % progress)
+    #progress = ("{:.0%}".format(progress))
+
+
     # Check if all items have been found
     current_items = len(items)
     if current_items == game_data.game_total_items:
@@ -131,6 +138,7 @@ def game_main_view(request): #, id):
     context = {
         "items": items,
         "current_items": current_items,
+        "progress": progress,
         "object": game_data,
         "duration": game_duration_str,
         "complete": trail_completed,
@@ -139,7 +147,7 @@ def game_main_view(request): #, id):
     return render(request, "game/game_main.html", context)
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/login/', redirect_field_name=None)
 def location_detail_view(request, location_id):
     """
     This view generates a location view based on the "id" .
@@ -170,38 +178,30 @@ def location_detail_view(request, location_id):
     print('VIEW: location_visit_event = %s' % event.id)
     add_events_to_game(game_id, [event.id])
 
-
-
     # Check if it is a POST  (This implies an action has been performed)
     if request.method == 'POST':
-        # Work out which action has been performed
-        print("HELLO I FOUND POST!")
-        # messages.success(request, 'Form submission successful')
-        # storage = get_messages(request)
-        # for message in storage:
-        #     print(message)
-        # messages.add_message(request, messages.INFO, 'Hello world.')
-        current_action_id = request.POST.getlist('action')[0]
-        print(type(current_action_id))
-        print("VIEW: action posted = %s" % current_action_id)
-        my_action = Action.objects.get(pk=current_action_id)
-        print(my_action.action_item)
-        # action_dict = eval(action_str)
-        #am.take_item(current_action.id)
-        am.perform_action(my_action)
-        # my_message = 'You ' + action_dict['action_type'] + ' the ' + action_dict['item_name']
-        # messages.success(request, my_message)
+        print(request.POST)
+        if 'navigation' in request.POST:
+            return HttpResponseRedirect('/game/')
 
+        else:
+            # Work out which action has been performed
+            current_action_id = request.POST.getlist('action')[0]
+            print(type(current_action_id))
+            print("VIEW: action posted = %s" % current_action_id)
 
-        #  Add it to game inventory
-        # current_item = Item(id=item_index)
-        # games_list = get_game_data(request.user)
-        # current_game = Game(id=games_list[0].id)
-        # current_game.game_inventory.add(current_item)
+            # Re-gather action and perform it
+            my_action = Action.objects.get(pk=current_action_id)
+            am.perform_action(my_action)
 
-        # redirect to game_main_view
-        # return HttpResponseRedirect('/game/')
-        return HttpResponseRedirect(request.path_info)
+            # Add a confirmation message
+            my_message = 'You ' + my_action.action_verb + ' the ' + my_action.action_item.item_name
+            messages.add_message(request, messages.INFO, my_message)
+
+            # if action means that context is now at 99 (e.g. the end) then if
+
+            # redirect to location_detail_view
+            return HttpResponseRedirect(request.path_info)
 
     # Get current context
     current_context = cm.get_current_context()

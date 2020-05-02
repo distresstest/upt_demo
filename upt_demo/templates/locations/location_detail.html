@@ -5,14 +5,19 @@
 
 {% block content %}
 
+
+
 <div>
     <b>Description:</b><br>
     {{ location_data.location_description }}</br>
     {{ current_game_events }}
+    <img src="{{ location_data.location_image.url }}" alt="{{ location_data.location_alt }}" height="200">
     <hr>
     <div>
         <b>Context:</b><br>
-        <p>{{ story_so_far }}</p>
+        {% for section in story_so_far %}
+        <pre>{{ section }}</pre>
+        {% endfor %}
 
     </div>
 
@@ -57,12 +62,27 @@
                     </td>
                 </tr>
             {% endfor %}
+
         </form>
         {% else %}
-            <tr>There is nothing you can do.</tr>
+            <tr>There is nothing else to do.</tr>
         {% endif %}
+                <form method="post">
+            {% csrf_token %}
+            <tr>
+                <td>Return to Game Status</td>
+                <td><button value="game_page" type="submit" class="btn btn-success" name="navigation">GO</button></td>
+            </tr>
+                            </form>
     </table>
-
+    <hr>
+        {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    {% endfor %}
+</ul>
+{% endif %}
 
     </div>
     <hr>

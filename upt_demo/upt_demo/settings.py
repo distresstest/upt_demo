@@ -131,5 +131,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'upt_demo/media')
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/trail/2"
 LOGOUT_REDIRECT_URL = "/"
